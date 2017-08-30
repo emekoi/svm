@@ -42,12 +42,12 @@ int run_file(char *filename, int dump_reg, int instr_max) {
     return 1;
   }
 
-  unsigned char *code = malloc(size);
-  memset(code, '\0', size);
+  // unsigned char *code = malloc(size);
+  // memset(code, '\0', size);
 
   /* parse input `experimental` */
-  // char *code = calloc(1, size);
-  // memset(code, '\0', size);
+  char *code = calloc(1, size);
+  memset(code, '\0', size);
   
 
   if (!code) {
@@ -65,32 +65,33 @@ int run_file(char *filename, int dump_reg, int instr_max) {
   fclose(fp);
 
   /* parse input `experimental` */
-  // lexer_init(code);
-  // ptoken_t t = lexer_get_token();
-  // while (t.type != TOK_EOF) {
-  //   if (t.type == TOK_ERROR) printf("%s: %lu: ", filename, t.line);
-  //   else printf("%s: ", token_name(t.type));
-  // } 
-  // for (size_t i = 0; i < t.len; i++) putchar(*(t.start+i));
-  //   putchar('\n');
-  //   t = lexer_get_token();
-  // }
-
-  svm_t *cpu = svm_new(code, size);
-  if (!cpu) {
-    printf("failed to create virtual machine instance for file: %s\n", filename);
-    return 1;
+  lexer_init(code);
+  ptoken_t t = lexer_get_token();
+  while (t.type != TOK_EOF) {
+    if (t.type == TOK_ERROR) printf("%s: %lu: ", filename, t.line);
+    else printf("%s: ", token_name(t.type));
+  
+  for (size_t i = 0; i < t.len; i++) putchar(*(t.start+i));
+    putchar('\n');
+    t = lexer_get_token();
   }
 
+
+  // svm_t *cpu = svm_new(code, size);
+  // if (!cpu) {
+  //   printf("failed to create virtual machine instance for file: %s\n", filename);
+  //   return 1;
+  // }
+
   /* run the bytecode */
-  svm_run_n_max(cpu, instr_max);
+  // svm_run_n_max(cpu, instr_max);
 
   /* dump the registers? */
-  if (dump_reg) svm_reg_dump(cpu);
+  // if (dump_reg) svm_reg_dump(cpu);
 
   /* cleanup */
-  svm_free(cpu);
-  free(code);
+  // svm_free(cpu);
+  // free(code);
   return 0;
 }
 

@@ -34,6 +34,9 @@ enum op_code_values {
   MATH_DEC,
   MATH_AND,
   MATH_OR,
+  MATH_LFT,
+  MATH_RGT,
+  MATH_NOT,
 
   /* tring operations */
   STRING_STORE = 0x30,

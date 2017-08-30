@@ -12,27 +12,63 @@
 #include "../util.h"
 
 static pkeyword_t keywords[] = {
-  { "if",       2, TOK_KEY_IF,       0 },
-  { "in",       2, TOK_KEY_IN,       0 },
-  { "is",       2, TOK_KEY_IS,       0 },
-  { "or",       2, TOK_KEY_OR,       0 },
-  { "and",      3, TOK_KEY_AND,      0 },
-  { "for",      3, TOK_KEY_FOR,      0 },
-  { "nil",      3, TOK_KEY_NIL,      0 },
-  { "var",      3, TOK_KEY_VAR,      0 },
-  { "func",     4, TOK_KEY_FUNC,     0 },
-  { "else",     4, TOK_KEY_ELSE,     0 },
-  { "true",     4, TOK_KEY_TRUE,     0 },
-  { "case",     4, TOK_KEY_CASE,     0 },
-  { "false",    5, TOK_KEY_FALSE,    0 },
-  { "break",    5, TOK_KEY_BREAK,    0 },
-  { "while",    5, TOK_KEY_WHILE,    0 },
-  { "repeat",   6, TOK_KEY_REPEAT,   0 },
-  { "switch",   6, TOK_KEY_SWITCH,   0 },
-  { "return",   6, TOK_KEY_RETURN,   0 },
-  { "default",  7, TOK_KEY_DEFAULT,  0 },
-  { "continue", 8, TOK_KEY_CONTINUE, 0 },
-  { NULL,       0, TOK_EOF,          0 },
+  { "EXIT", TOK_OP_EXIT },
+  { "INT_STORE", TOP_OP_INT_STORE },
+  { "INT_PRINT", TOK_OP_INT_PRINT },
+  { "INT_TOSTRING", TOK_OP_INT_TOSTRING },
+  { "INT_RANDOM", TOK_OP_INT_RANDOM },
+  { "GOTO", TOK_OP_JUMP_TO },
+  { "JMPZ", TOK_OP_JUMP_Z },
+  { "JMPNZ", TOK_OP_JUMP_NZ },
+
+  { "XOR", TOK_OP_MATH_XOR },
+  { "ADD", TOK_OP_MATH_ADD },
+  { "SUB", TOK_OP_MATH_SUB },
+  { "MUL", TOK_OP_MATH_MUL },
+  { "DIV", TOK_OP_MATH_DIV },
+  { "INC", TOK_OP_MATH_INC },
+  { "DEC", TOK_OP_MATH_DEC },
+  { "AND", TOK_OP_MATH_AND },
+  { "LFT", TOK_OP_MATH_LFT },
+  { "RGT", TOK_OP_MATH_RGT },
+  { "NOT", TOK_OP_MATH_NOT },
+  { "OR", TOK_OP_MATH_OR },
+
+  { "STRING_STORE", TOK_OP_STRING_STORE },
+  { "STRING_PRINT", TOK_OP_STRING_PRINT },
+  { "CONCAT", TOK_OP_STRING_CONCAT },
+  { "STRING_SYSTEM", TOK_OP_STRING_SYSTEM },
+  { "STRING_TOINT", TOK_OP_STRING_TOINT },
+
+  { "CMP_REG", TOK_OP_CMP_REG },
+  { "CMP_IMMEDIATE", TOK_OP_CMP_IMMEDIATE },
+  { "CMP_STRING", TOK_OP_CMP_STRING },
+  { "IS_STRING", TOK_OP_IS_STRING },
+  { "IS_NUMBER", TOK_OP_IS_NUMBER },
+
+  { "NOP", TOK_OP_NOP },
+  { "STORE_REG", TOK_OP_STORE_REG },
+
+  { "PEEK", TOK_OP_PEEK },
+  { "POKE", TOK_OP_POKE },
+  { "MEMCPY", TOK_OP_MEMCPY },
+
+  { "PUSH", TOK_OP_STACK_PUSH },
+  { "POP", TOK_OP_STACK_POP },
+  { "RET", TOK_OP_STACK_RET },
+  { "CALL", TOK_OP_STACK_CALL },
+
+  // { "true",     4, TOK_KEY_TRUE,     },
+  // { "case",     4, TOK_KEY_CASE,     },
+  // { "false",    5, TOK_KEY_FALSE,    },
+  // { "break",    5, TOK_KEY_BREAK,    },
+  // { "while",    5, TOK_KEY_WHILE,    },
+  // { "repeat",   6, TOK_KEY_REPEAT,   },
+  // { "switch",   6, TOK_KEY_SWITCH,   },
+  // { "return",   6, TOK_KEY_RETURN,   },
+  // { "default",  7, TOK_KEY_DEFAULT,  },
+  // { "continue", 9, TOK_KEY_CONTINUE, },
+  { NULL,       0, TOK_EOF,          },
 };
 
 plexer_t Lexer;
@@ -49,10 +85,6 @@ void lexer_init(const char *source) {
   Lexer.token_start = source;
   Lexer.current = source;
   Lexer.line = 0;
-
-  for(pkeyword_t *key = keywords; key->name != NULL; key++) {
-    key->hash = hash(key->name);
-  }
 }
 
 static bool is_alpha(char c) {
@@ -136,14 +168,8 @@ static ptoken_t indentifier() {
 
   size_t len = Lexer.current - Lexer.token_start;
   for(pkeyword_t *key = keywords; key->name != NULL; key++){
-    // this should be (look down) but thats okay 
-    // if (len == key->len && !memcmp(Lexer.token_start, key->name, len)) {
-    if (len == key->len) {
-      char *str = calloc(1, sizeof(char) * len + 1);
-      str[len] = '\0'; memcpy(str, Lexer.token_start, len);
-      if (key->hash == hash(str)) 
+    if (len == key->len && !memcmp(Lexer.token_start, key->name, len)) {
       type = key->type;
-      free(str);
       break;
     }
   }
