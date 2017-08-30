@@ -11,21 +11,21 @@
 #include "svm.h"
 
 enum op_code_values {
-	/* early opcodes */
-	EXIT = 0x00,
+  /* early opcodes */
+  EXIT = 0x00,
 
-	INT_STORE,
-	INT_PRINT,
-	INT_TOSTRING,
-	INT_RANDOM,
+  INT_STORE,
+  INT_PRINT,
+  INT_TOSTRING,
+  INT_RANDOM,
 
-	/* jump operations */
-	JUMP_TO = 0x10,
-	JUMP_Z,
-	JUMP_NZ,
+  /* jump operations */
+  JUMP_TO = 0x10,
+  JUMP_Z,
+  JUMP_NZ,
 
-	/* math operations */
-	MATH_XOR = 0x20,
+  /* math operations */
+  MATH_XOR = 0x20,
   MATH_ADD,
   MATH_SUB,
   MATH_MUL,

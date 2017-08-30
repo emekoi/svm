@@ -49,12 +49,12 @@ struct svm_t {
 
 svm_t *svm_new(unsigned char *code, unsigned int size);
 void svm_run_n_max(svm_t * cpu, int max);
-void svm_run(svm_t * cpu);
-void *svm_free(svm_t *cpu);
+void svm_run(svm_t *cpu);
+void svm_free(svm_t *cpu);
 
 void svm_panic(svm_t * cpu, char *msg);
 void svm_panic_set(svm_t *cpu, void (*panic)(char *msg));
-void svm_registers_dump(svm_t * cpu);
+void svm_reg_dump(svm_t * cpu);
 
 
 
