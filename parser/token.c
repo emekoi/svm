@@ -20,26 +20,26 @@ const char *token_name(ptoken_type_t token) {
     case TOK_IDENTIFIER: return "IDENTIFIER";
 
     /* keywords */
-    case TOK_KEY_FUNC: return "func";
-    case TOK_KEY_DEFAULT: return "default";
-    case TOK_KEY_TRUE: return "true";
-    case TOK_KEY_FALSE: return "false";
-    case TOK_KEY_IF: return "if";
-    case TOK_KEY_ELSE: return "else";
-    case TOK_KEY_SWITCH: return "switch";
-    case TOK_KEY_BREAK: return "break";
-    case TOK_KEY_CONTINUE: return "continue";
-    case TOK_KEY_RETURN: return "return";
-    case TOK_KEY_WHILE: return "while";
-    case TOK_KEY_REPEAT: return "repeat";
-    case TOK_KEY_FOR: return "for";
-    case TOK_KEY_IN: return "in";
-    case TOK_KEY_VAR: return "var";
-    case TOK_KEY_CASE: return "case";
-    case TOK_KEY_NIL: return "nil";
-    case TOK_KEY_IS: return "is";
-    case TOK_KEY_AND: return "and";
-    case TOK_KEY_OR: return "or";
+    case TOK_KEY_FUNC: return "FUNC";
+    case TOK_KEY_DEFAULT: return "DEFAULT";
+    case TOK_KEY_TRUE: return "TRUE";
+    case TOK_KEY_FALSE: return "FALSE";
+    case TOK_KEY_IF: return "IF";
+    case TOK_KEY_ELSE: return "ELSE";
+    case TOK_KEY_SWITCH: return "SWITCH";
+    case TOK_KEY_BREAK: return "BREAK";
+    case TOK_KEY_CONTINUE: return "CONTINUE";
+    case TOK_KEY_RETURN: return "RETURN";
+    case TOK_KEY_WHILE: return "WHILE";
+    case TOK_KEY_REPEAT: return "REPEAT";
+    case TOK_KEY_FOR: return "FOR";
+    case TOK_KEY_IN: return "IN";
+    case TOK_KEY_VAR: return "VAR";
+    case TOK_KEY_CASE: return "CASE";
+    case TOK_KEY_NIL: return "NIL";
+    case TOK_KEY_IS: return "IS";
+    case TOK_KEY_AND: return "AND";
+    case TOK_KEY_OR: return "OR";
 
     /* operators */
     case TOK_OP_ADD: return "+";

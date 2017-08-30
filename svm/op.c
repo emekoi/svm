@@ -76,7 +76,7 @@ char *get_string_reg(svm_t * cpu, int reg) {
   if (cpu->registers[reg].type == STRING)
     return (cpu->registers[reg].value.string);
 
-  svm_panic(cpu, "the register deesn't contain a string");
+  svm_panic(cpu, "the register doesn't contain a string");
   return NULL;
 }
 
@@ -296,7 +296,7 @@ void op_int_print(svm_t *svm) {
 
   if (getenv("DEBUG") != NULL)
     printf("[STDOUT] Register R%02d => %d [Hex:%04x]\n", reg, val, val);
-  else printf("0x%04X", val);
+  else printf("0x%04X -> %d", val, val);
 
 
   /* handle the next instruction */

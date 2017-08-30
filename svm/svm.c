@@ -103,10 +103,8 @@ void svm_reg_dump(svm_t * cpu) {
 	  }
 	}
 
-	if (cpu->flags.z) 
-	  printf("\tz-flag: true\n");
-	else
-	 printf("\tZ=z-flag: false\n");
+	if (cpu->flags.z) printf("\tz-flag: true\n");
+	else printf("\tz=z-flag: false\n");
 }
 
 
@@ -134,7 +132,7 @@ void svm_run_n_max(svm_t *cpu, int max) {
 		int opcode = cpu->code[cpu->ip];
 
 		if (getenv("DEBUG") != NULL) {
-			// printf("%04x - parsing op_code hex:%02X\n", cpu->ip, opcode);
+			printf("%04x - parsing op_code hex:%02X\n", cpu->ip, opcode);
 		}
 
 		if (cpu->op_codes[opcode] != NULL) cpu->op_codes[opcode](cpu);

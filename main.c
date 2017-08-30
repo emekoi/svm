@@ -5,7 +5,8 @@
  * under the terms of the MIT license. See LICENSE for details.
  */
 
-// #include "parser/"
+#include "parser/lexer.h"
+#include "parser/token.h"
 #include "svm/svm.h"
 #include "svm/op.h"
 
@@ -44,6 +45,11 @@ int run_file(char *filename, int dump_reg, int instr_max) {
   unsigned char *code = malloc(size);
   memset(code, '\0', size);
 
+  /* parse input `experimental` */
+  // char *code = calloc(1, size);
+  // memset(code, '\0', size);
+  
+
   if (!code) {
     printf("failed to allocate ram for file: %s\n", filename);
     fclose(fp); return 1;
@@ -55,7 +61,20 @@ int run_file(char *filename, int dump_reg, int instr_max) {
     printf("failed to completely read file: %s\n", filename);
     fclose(fp); return 1;
   }
+
   fclose(fp);
+
+  /* parse input `experimental` */
+  // lexer_init(code);
+  // ptoken_t t = lexer_get_token();
+  // while (t.type != TOK_EOF) {
+  //   if (t.type == TOK_ERROR) printf("%s: %lu: ", filename, t.line);
+  //   else printf("%s: ", token_name(t.type));
+  // } 
+  // for (size_t i = 0; i < t.len; i++) putchar(*(t.start+i));
+  //   putchar('\n');
+  //   t = lexer_get_token();
+  // }
 
   svm_t *cpu = svm_new(code, size);
   if (!cpu) {
@@ -89,8 +108,8 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  if (argc > 2) {
-    instr_max = atoi(argv[2]);
+  if (argc >= 2) {
+    instr_max = (argv[2] ? atoi(argv[2]) : 0);
     if (getenv("DEBUG") != NULL) dump_reg = 1;
 
     return run_file(argv[1], dump_reg, instr_max);
