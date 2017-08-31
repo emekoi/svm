@@ -11,63 +11,104 @@
 #include "token.h"
 #include "../util.h"
 
-static pkeyword_t keywords[] = {
-  { "EXIT", TOK_OP_EXIT },
-  { "INT_STORE", TOP_OP_INT_STORE },
-  { "INT_PRINT", TOK_OP_INT_PRINT },
-  { "INT_TOSTRING", TOK_OP_INT_TOSTRING },
-  { "INT_RANDOM", TOK_OP_INT_RANDOM },
-  { "GOTO", TOK_OP_JUMP_TO },
-  { "JMPZ", TOK_OP_JUMP_Z },
-  { "JMPNZ", TOK_OP_JUMP_NZ },
+/*
 
-  { "XOR", TOK_OP_MATH_XOR },
-  { "ADD", TOK_OP_MATH_ADD },
-  { "SUB", TOK_OP_MATH_SUB },
-  { "MUL", TOK_OP_MATH_MUL },
-  { "DIV", TOK_OP_MATH_DIV },
-  { "INC", TOK_OP_MATH_INC },
-  { "DEC", TOK_OP_MATH_DEC },
-  { "AND", TOK_OP_MATH_AND },
-  { "LFT", TOK_OP_MATH_LFT },
-  { "RGT", TOK_OP_MATH_RGT },
-  { "NOT", TOK_OP_MATH_NOT },
-  { "OR", TOK_OP_MATH_OR },
+:test
+:label
+[-] goto  0x44ff      # Jump to the given address
+[-] goto  label       # Jump to the given label
+[-] jmpnz label       # Jump to label if Zero-Flag is not set
+[-] jmpz  label       # Jump to label if Zero-Flag is set
+
+[] store #1, 33      # store 33 in register 1
+[] store #2, "Steve" # Store the string "Steve" in register 1.
+[] store #1, #3      # register1 is set to the contents of register #3.
+
+[-] exit              # Stop processing.
+[-] nop               # Do nothing
+
+[-] print_int #3      # Print the (integer) contents of register 3
+[-] print_str #3      # Print the (string) contents of register 3
+
+[-] system #3         # Call the (string) command stored in register 3
+
+[-] add #1, #2, #3    # Add register 2 + register 3 contents, store in reg 1
+[-] sub #1, #2, #3    # sub register 2 + register 3 contents, store in reg 1
+[-] mul #1, #2, #3    # multiply register 2 + register 3 contents, store in reg 1
+[-] concat #1, #2,#3  # store concatenated strings from reg2 + reg3 in reg1.
+
+[-] dec #2            # Decrement the integer in register 2
+[-] inc #2            # Increment the integer in register 2
+
+[-] string2int #3     # Change register 3 to have a string from an int
+[-] is_integer #3     # Does the given register have an integer content?
+[-] int2string #3     # Change register 3 to have an int from a string
+[-] is_string  #3     # Does the given register have a string-content?
+
+[] cmp #3, #4        # Compare contents of reg 3 & 4, set the Z-flag.
+[] cmp #3, 42        # Compare contents of reg 3 with the constant 42.  sets z.
+[] cmp #3, "Moi"     # Compare contents of reg 3 with the constant string "Moi".  sets z.
+
+[-] peek #1, #4       # Load register 1 with the contents of the address in #4.
+[-] poke #1, #4       # Set the address stored in register4 with the contents of reg1.
+[-] random #2         # Store a random integer in register #2.
+
+[-] push #1           # Store the contents of register #1 in the stack
+[-] pop  #1           # Load register #1 with the contents of the stack.
+[-] call 0xFFEE       # Call the given address.
+[-] call my_label     # Call the defined label
+[-] ret               # Return from a called-routine.
+
+*/
+
+static pkeyword_t keywords[] = {
+  { "nop", 3, TOK_OP_NOP },
+  { "exit", 4, TOK_OP_EXIT },
+  { "peek", 4, TOK_OP_PEEK },
+  { "poke", 4, TOK_OP_POKE },
+  { "memcpy", 5, TOK_OP_MEMCPY },
+  
+  { "goto", 4, TOK_OP_JUMP_TO },
+  { "jmpz", 4, TOK_OP_JUMP_Z },
+  { "jmpnz", 5, TOK_OP_JUMP_NZ },
+  
+  { "pop", 3, TOK_OP_STACK_POP },
+  { "ret", 3, TOK_OP_STACK_RET },
+  { "call", 4, TOK_OP_STACK_CALL },
+  { "push", 4, TOK_OP_STACK_PUSH },
+  
+  { "or",  2, TOK_OP_MATH_OR },
+  { "xor", 3, TOK_OP_MATH_XOR },
+  { "add", 3, TOK_OP_MATH_ADD },
+  { "sub", 3, TOK_OP_MATH_SUB },
+  { "mul", 3, TOK_OP_MATH_MUL },
+  { "div", 3, TOK_OP_MATH_DIV },
+  { "inc", 3, TOK_OP_MATH_INC },
+  { "dec", 3, TOK_OP_MATH_DEC },
+  { "and", 3, TOK_OP_MATH_AND },
+  { "lft", 3, TOK_OP_MATH_LFT },
+  { "rgt", 3, TOK_OP_MATH_RGT },
+  { "not", 3, TOK_OP_MATH_NOT },
+  
+  { "INT_STORE", 4, TOP_OP_INT_STORE },
+  { "random", 6, TOK_OP_INT_RANDOM },
+  { "print_int", 9, TOK_OP_INT_PRINT },
+  { "int2string", 10, TOK_OP_INT_TOSTRING },
 
   { "STRING_STORE", TOK_OP_STRING_STORE },
-  { "STRING_PRINT", TOK_OP_STRING_PRINT },
-  { "CONCAT", TOK_OP_STRING_CONCAT },
-  { "STRING_SYSTEM", TOK_OP_STRING_SYSTEM },
-  { "STRING_TOINT", TOK_OP_STRING_TOINT },
+  { "concat", 6, TOK_OP_STRING_CONCAT },
+  { "system", 6, TOK_OP_STRING_SYSTEM },
+  { "print_str", 9, TOK_OP_STRING_PRINT },
+  { "string2int", 10, TOK_OP_STRING_TOINT },
 
   { "CMP_REG", TOK_OP_CMP_REG },
   { "CMP_IMMEDIATE", TOK_OP_CMP_IMMEDIATE },
   { "CMP_STRING", TOK_OP_CMP_STRING },
-  { "IS_STRING", TOK_OP_IS_STRING },
-  { "IS_NUMBER", TOK_OP_IS_NUMBER },
+  { "is_string", TOK_OP_IS_STRING },
+  { "is_integer", TOK_OP_IS_NUMBER },
 
-  { "NOP", TOK_OP_NOP },
   { "STORE_REG", TOK_OP_STORE_REG },
-
-  { "PEEK", TOK_OP_PEEK },
-  { "POKE", TOK_OP_POKE },
-  { "MEMCPY", TOK_OP_MEMCPY },
-
-  { "PUSH", TOK_OP_STACK_PUSH },
-  { "POP", TOK_OP_STACK_POP },
-  { "RET", TOK_OP_STACK_RET },
-  { "CALL", TOK_OP_STACK_CALL },
-
-  // { "true",     4, TOK_KEY_TRUE,     },
-  // { "case",     4, TOK_KEY_CASE,     },
-  // { "false",    5, TOK_KEY_FALSE,    },
-  // { "break",    5, TOK_KEY_BREAK,    },
-  // { "while",    5, TOK_KEY_WHILE,    },
-  // { "repeat",   6, TOK_KEY_REPEAT,   },
-  // { "switch",   6, TOK_KEY_SWITCH,   },
-  // { "return",   6, TOK_KEY_RETURN,   },
-  // { "default",  7, TOK_KEY_DEFAULT,  },
-  // { "continue", 9, TOK_KEY_CONTINUE, },
+  
   { NULL,       0, TOK_EOF,          },
 };
 
