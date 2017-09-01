@@ -206,12 +206,15 @@ void skip_whitespace() {
       c = peek();
     }
 
-    if (match('#') && !is_digit(peek())) {
-      while (peek() != '\n' && !is_at_end()) putchar(advance());
+    if (peek() == '#' && !is_digit(next())) {
+      while (!match('\n') && !is_at_end()) advance();
+       // advance();
       if (peek() == '\n') {
+        // putchar('n');
+        advance();
         advance();
         Lexer.line++;
-        putchar('\n');
+        // putchar('\n');
       }
     }
 
