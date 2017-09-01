@@ -18,6 +18,8 @@ const char *token_name(ptoken_type_t token) {
     case TOK_STRING: return "STRING";
     case TOK_NUMBER: return "NUMBER";
     case TOK_LABEL: return "LABEL";
+    case TOK_REGISTER: return "REGISTER";
+
 
     case TOK_OP_EXIT: return "EXIT";
 
@@ -67,10 +69,9 @@ const char *token_name(ptoken_type_t token) {
     case TOK_OP_STACK_RET: return "STACK_RET";
     case TOK_OP_STACK_CALL: return "STACK_CALL";
 
-    case TOK_SEMICOLON: return ";";
     case TOK_COLON: return ":";
     case TOK_COMMA: return ",";
-    case TOK_END: return "";
+    case TOK_END: return "END";
   }
 
   /* should never reach this point */

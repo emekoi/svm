@@ -67,16 +67,16 @@ static pkeyword_t keywords[] = {
   { "peek", 4, TOK_OP_PEEK },
   { "poke", 4, TOK_OP_POKE },
   { "memcpy", 5, TOK_OP_MEMCPY },
-  
+
   { "goto", 4, TOK_OP_JUMP_TO },
   { "jmpz", 4, TOK_OP_JUMP_Z },
   { "jmpnz", 5, TOK_OP_JUMP_NZ },
-  
+
   { "pop", 3, TOK_OP_STACK_POP },
   { "ret", 3, TOK_OP_STACK_RET },
   { "call", 4, TOK_OP_STACK_CALL },
   { "push", 4, TOK_OP_STACK_PUSH },
-  
+
   { "or",  2, TOK_OP_MATH_OR },
   { "xor", 3, TOK_OP_MATH_XOR },
   { "add", 3, TOK_OP_MATH_ADD },
@@ -89,26 +89,26 @@ static pkeyword_t keywords[] = {
   { "lft", 3, TOK_OP_MATH_LFT },
   { "rgt", 3, TOK_OP_MATH_RGT },
   { "not", 3, TOK_OP_MATH_NOT },
-  
-  { "INT_STORE", 4, TOP_OP_INT_STORE },
+
+  { "store", 5, TOP_OP_INT_STORE },
   { "random", 6, TOK_OP_INT_RANDOM },
   { "print_int", 9, TOK_OP_INT_PRINT },
   { "int2string", 10, TOK_OP_INT_TOSTRING },
 
-  { "STRING_STORE", TOK_OP_STRING_STORE },
+  { "store", 5, TOK_OP_STRING_STORE },
   { "concat", 6, TOK_OP_STRING_CONCAT },
   { "system", 6, TOK_OP_STRING_SYSTEM },
   { "print_str", 9, TOK_OP_STRING_PRINT },
   { "string2int", 10, TOK_OP_STRING_TOINT },
 
-  { "CMP_REG", TOK_OP_CMP_REG },
-  { "CMP_IMMEDIATE", TOK_OP_CMP_IMMEDIATE },
-  { "CMP_STRING", TOK_OP_CMP_STRING },
-  { "is_string", TOK_OP_IS_STRING },
-  { "is_integer", TOK_OP_IS_NUMBER },
+  { "cmp", 3, TOK_OP_CMP_REG },
+  { "cmp", 3, TOK_OP_CMP_IMMEDIATE },
+  { "cmp", 3, TOK_OP_CMP_STRING },
+  { "is_string", 9, TOK_OP_IS_STRING },
+  { "is_integer", 10, TOK_OP_IS_NUMBER },
 
-  { "STORE_REG", TOK_OP_STORE_REG },
-  
+  { "store", 5, TOK_OP_STORE_REG },
+
   { NULL,       0, TOK_EOF,          },
 };
 
@@ -176,11 +176,20 @@ ptoken_t make_token(ptoken_type_t t) {
   return token;
 }
 
-ptoken_t error_token(const char *msg) {
+// ptoken_t error_token(const char *msg) {
+//   ptoken_t token;
+//   token.type = TOK_ERROR;
+//   token.start = msg;
+//   token.len = strlen(msg);
+//   token.line = Lexer.line;
+//   return token;
+// }
+
+ptoken_t error_token(const char c) {
   ptoken_t token;
   token.type = TOK_ERROR;
-  token.start = msg;
-  token.len = strlen(msg);
+  token.start = &c;
+  token.len = 1;
   token.line = Lexer.line;
   return token;
 }
@@ -196,16 +205,23 @@ void skip_whitespace() {
       advance();
       c = peek();
     }
-    if (c == '#')
-      while (peek() != '\n' && !is_at_end()) advance();
-      Lexer.line++;
+
+    if (match('#') && !is_digit(peek())) {
+      while (peek() != '\n' && !is_at_end()) putchar(advance());
+      if (peek() == '\n') {
+        advance();
+        Lexer.line++;
+        putchar('\n');
+      }
+    }
+
     return;
   }
 }
 
 static ptoken_t indentifier() {
   while (is_alpha_num(peek())) advance();
-  ptoken_type_t type = TOK_IDENTIFIER;
+  ptoken_type_t type = TOK_COMMENT;
 
   size_t len = Lexer.current - Lexer.token_start;
   for(pkeyword_t *key = keywords; key->name != NULL; key++){
@@ -230,6 +246,19 @@ static ptoken_t number() {
   return make_token(TOK_NUMBER);
 }
 
+static ptoken_t _register() {
+  if (match('#'))
+    while (is_digit(peek())) advance();
+  return make_token(TOK_REGISTER);
+}
+
+static ptoken_t label() {
+  if (match(':'))
+    // if ()
+    while (is_digit(peek())) advance();
+  return make_token(TOK_REGISTER);
+}
+
 static ptoken_t string() {
   while (peek() != '"' && !is_at_end()) {
     if (peek() == '\n') Lexer.line++;
@@ -237,7 +266,7 @@ static ptoken_t string() {
   }
 
   /* unterminated string */
-  if (is_at_end()) return error_token("unterminated string");
+  // if (is_at_end()) return error_token("unterminated string");
 
   /* the closing '"' */
   advance();
@@ -259,69 +288,37 @@ ptoken_t lexer_get_token() {
   // printf("%c", c);
 
   switch (c) {
-    case '(': return make_token(TOK_OP_LEFT_PAREN);
-    case ')': return make_token(TOK_OP_RIGHT_PAREN);
-    case '[': return make_token(TOK_OP_LEFT_BRACKET);
-    case ']': return make_token(TOK_OP_RIGHT_BRACKET);
-    case '{': return make_token(TOK_OP_LEFT_BRACE);
-    case '}': return make_token(TOK_OP_RIGHT_BRACE);
-    case '+':
-      if (match('=')) return make_token(TOK_OP_ADD_ASSIGN);
-      return make_token(TOK_OP_ADD);
-    case '-':
-      if (match('=')) return make_token(TOK_OP_SUB_ASSIGN);
-      return make_token(TOK_OP_SUB);
-    case '/':
-      if (match('=')) return make_token(TOK_OP_DIV_ASSIGN);
-      return make_token(TOK_OP_DIV);
-    case '*':
-      if (match('=')) return make_token(TOK_OP_MUL_ASSIGN);
-      return make_token(TOK_OP_MUL);
-    case '%':
-      if (match('=')) return make_token(TOK_OP_MOD_ASSIGN);
-      return make_token(TOK_OP_MOD);
-    case '=':
-      if (match('=')) return make_token(TOK_OP_EQUAL);
-      return make_token(TOK_OP_ASSIGN);
-    case '<':
-      if (match('<'))
-        if (match('='))
-          return make_token(TOK_OP_SHIFT_LEFT_ASSIGN);
-        return make_token(TOK_OP_SHIFT_LEFT);
-      if (match('=')) return make_token(TOK_OP_LESS_EQUAL);
-      return make_token(TOK_OP_LESS);
-    case '>':
-      if (match('>'))
-        if (match('='))
-          return make_token(TOK_OP_SHIFT_RIGHT_ASSIGN);
-        return make_token(TOK_OP_SHIFT_RIGHT);
-      if (match('=')) return make_token(TOK_OP_GREATER_EQUAL);
-      return make_token(TOK_OP_GREATER);
-    case '!':
-      if (match('=')) return make_token(TOK_OP_NOT_EQUAL);
-      return make_token(TOK_OP_NOT);
-    case '|':
-      if (match('=')) return make_token(TOK_OP_BIT_OR_ASSIGN);
-      return make_token(TOK_OP_BIT_OR);
-    case '&':
-      if (match('=')) return make_token(TOK_OP_BIT_AND_ASSIGN);
-      return make_token(TOK_OP_BIT_AND);
-    case '^':
-      if (match('=')) return make_token(TOK_OP_BIT_XOR_ASSIGN);
-      return make_token(TOK_OP_BIT_XOR);
-    case '~':
-      return make_token(TOK_OP_BIT_NOT);
-    // case '?': return make_token(TOK_KEY_NIL);
-    case ';': return make_token(TOK_OP_SEMICOLON);
-    case ':': return make_token(TOK_OP_COLON);
-    case ',': return make_token(TOK_OP_COMMA);
-    case '.':
-      if (match('.'))
-        if (match('.'))
-          return make_token(TOK_OP_RANGE_EXCLUDED);
-        return make_token(TOK_OP_RANGE_INCLUDED);
-      return make_token(TOK_OP_DOT);
+    // case '(': return make_token(TOK_OP_LEFT_PAREN);
+    // case '+':
+    //   if (match('=')) return make_token(TOK_OP_ADD_ASSIGN);
+    //   return make_token(TOK_OP_ADD);
+    // case '=':
+    //   if (match('=')) return make_token(TOK_OP_EQUAL);
+    //   return make_token(TOK_OP_ASSIGN);
+    // case '<':
+    //   if (match('<'))
+    //     if (match('='))
+    //       return make_token(TOK_OP_SHIFT_LEFT_ASSIGN);
+    //     return make_token(TOK_OP_SHIFT_LEFT);
+    //   if (match('=')) return make_token(TOK_OP_LESS_EQUAL);
+    //   return make_token(TOK_OP_LESS);
+    // case '!':
+    //   if (match('=')) return make_token(TOK_OP_NOT_EQUAL);
+    //   return make_token(TOK_OP_NOT);
+    // case '|':
+    //   if (match('=')) return make_token(TOK_OP_BIT_OR_ASSIGN);
+    //   return make_token(TOK_OP_BIT_OR);
+    // case '&':
+    //   if (match('=')) return make_token(TOK_OP_BIT_AND_ASSIGN);
+    //   return make_token(TOK_OP_BIT_AND);
+    // case '^':
+    //   if (match('=')) return make_token(TOK_OP_BIT_XOR_ASSIGN);
+    //   return make_token(TOK_OP_BIT_XOR);
+    case '#': return _register();
+    case ':': return label();
+    case ',': return make_token(TOK_COMMA);
     case '"': return string();
   }
-  return error_token("unexpected character");
+  return error_token(c);
+  // return error_token("unexpected character");
 }

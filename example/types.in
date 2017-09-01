@@ -11,7 +11,7 @@
 #
 #
 
-        store #1, 43
+        store #1, 11008
         is_integer #1
         jmpz ok1
 

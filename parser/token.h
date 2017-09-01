@@ -19,6 +19,7 @@ typedef enum {
   TOK_COMMENT,
   TOK_STRING,
   TOK_NUMBER,
+  TOK_REGISTER,
   TOK_LABEL,
   TOK_END,
 
@@ -82,7 +83,6 @@ typedef enum {
   /* misc. */
   TOK_COMMA,
   TOK_COLON,
-  TOK_SEMICOLON,
 } ptoken_type_t;
 
 typedef enum {

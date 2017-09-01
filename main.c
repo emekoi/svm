@@ -48,7 +48,6 @@ int run_file(char *filename, int dump_reg, int instr_max) {
   /* parse input `experimental` */
   char *code = calloc(1, size);
   memset(code, '\0', size);
-  
 
   if (!code) {
     printf("failed to allocate ram for file: %s\n", filename);
@@ -68,11 +67,14 @@ int run_file(char *filename, int dump_reg, int instr_max) {
   lexer_init(code);
   ptoken_t t = lexer_get_token();
   while (t.type != TOK_EOF) {
-    if (t.type == TOK_ERROR) printf("%s: %lu: ", filename, t.line);
-    else printf("%s: ", token_name(t.type));
-  
-  for (size_t i = 0; i < t.len; i++) putchar(*(t.start+i));
-    putchar('\n');
+    if (t.type == TOK_ERROR) {
+      printf("%s: %lu: ", filename, t.line);
+      for (size_t i = 0; i < t.len; i++) putchar(*(t.start+i));
+      putchar('\n');
+    } // else printf("%s: ", token_name(t.type));
+
+    // for (size_t i = 0; i < t.len; i++) putchar(*(t.start+i));
+    // putchar('\n');
     t = lexer_get_token();
   }
 

@@ -82,6 +82,8 @@ void op_jump_nz(svm_t *in);
 
 /* 0x20 - 0x2F */
 void op_math_xor(svm_t *in);
+void op_math_rgt(svm_t *in);
+void op_math_lft(svm_t *in);
 void op_math_or(svm_t *in);
 void op_math_add(svm_t *in);
 void op_math_and(svm_t *in);

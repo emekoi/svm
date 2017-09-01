@@ -600,6 +600,8 @@ MATH_OPERATION(op_math_and, &)   // reg_result = reg1 & reg2 ;
 MATH_OPERATION(op_math_sub, -)   // reg_result = reg1 - reg2 ;
 MATH_OPERATION(op_math_mul, *)   // reg_result = reg1 * reg2 ;
 MATH_OPERATION(op_math_xor, ^)   // reg_result = reg1 ^ reg2 ;
+MATH_OPERATION(op_math_rgt, >>)   // reg_result = reg1 >> reg2 ;
+MATH_OPERATION(op_math_lft, <<)   // reg_result = reg1 << reg2 ;
 MATH_OPERATION(op_math_or, |)    // reg_result = reg1 | reg2 ;
 /**
 * Increment the given (number) register.
